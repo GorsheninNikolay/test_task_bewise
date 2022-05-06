@@ -21,7 +21,7 @@ class GetQuestions(Resource):
     def get(self, document_id: int) -> Dict[str, List[Dict[str, str]]]:
         try:
             doc = db.session.query(Document).filter(
-                Document.id == document_id
+                Document.id == int(document_id)
             ).one()
             ans = {'result': []}
             if doc:
@@ -96,6 +96,6 @@ class RandomQuestions(Resource):
                         )
 
             db.session.commit()
-            return {'Created!': []}, 201
+            return ans, 201
         except Exception as error:
             logging.error(error)
