@@ -1,1 +1,1 @@
-from test_task import app
+from test_task import app  # noqa

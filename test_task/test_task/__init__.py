@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
 from flask_restx import Api
+from flask_sqlalchemy import SQLAlchemy
 
 from test_task.config import Config
 
@@ -17,5 +17,4 @@ db = SQLAlchemy(app)
 db.create_all()
 migrate = Migrate(app, db)
 
-
-from . import views
+from . import views  # noqa
