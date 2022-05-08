@@ -47,7 +47,7 @@ class RouteDocument(Resource):
         except Exception as error:
             logging.error(error)
 
-    def post(self) -> Tuple[List[Dict[str, str]], int]:
+    def post(self) -> Tuple[Dict[str, List[Dict[str, str]] or str, int]]:
         try:
             ans = {'result': []}
             questions_num = request.json.get('questions_num')
