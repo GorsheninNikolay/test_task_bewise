@@ -6,7 +6,7 @@ class Document(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     text_question = db.Column(db.Text)  # Текст вопроса
-    hash_text_question = db.Column(db.Text)  # Хеш вопроса
+    hash_text_question = db.Column(db.BigInteger)  # Хеш вопроса
     text_answer = db.Column(db.Text)  # Текст ответа
     created_date = db.Column(db.Date)  # Дата создания
 

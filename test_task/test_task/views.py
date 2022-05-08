@@ -3,7 +3,6 @@ from typing import Dict, List, Tuple
 
 from flask_restx import Resource
 from requests import get
-from sqlalchemy.orm import load_only
 
 from test_task import api, db
 from .utils.help_add import help_add_document
@@ -99,23 +98,21 @@ class RandomQuestions(Resource):
 
             url = 'https://jservice.io/api/random'
             resp = get(f'{url}?count={questions_num}').json()
-            documents = db.session.query(Document).options(
-                load_only("hash_text_question")
-            ).all()
 
-            # Хэш таблица
-            hash_table = {doc.hash_text_question for doc in documents}
+            # Хэш таблица. В крупном проекте можно было бы использовать Redis
+            hash_table = {doc.hash_text_question for doc in
+                          db.session.query(Document).distinct()}
             cnt = 0  # Счетчик повторов
 
             for doc in resp:
                 hash_text_question = hash(doc['question'])
-                if hash_text_question in hash_table:
-                    cnt += 1
+                if hash_text_question not in hash_table:
+                    hash_table.add(hash_text_question)
+                    help_add_document(
+                        ans, doc, db
+                    )
                     continue
-                hash_table.add(hash_text_question)
-                help_add_document(
-                    ans, doc, db
-                )
+                cnt += 1
 
             # Если повторы все-таки есть...
             if cnt > 0:
@@ -125,9 +122,7 @@ class RandomQuestions(Resource):
                         resp = get(f'{url}?count=50').json()
                     doc = resp.pop()
                     hash_text_question = hash(doc['question'])
-                    if hash_text_question not in hash_table and \
-                            db.session.query(Document).filter(
-                                Document.id == doc['id']).first() is None:
+                    if hash_text_question not in hash_table:
                         cnt -= 1
                         hash_table.add(hash_text_question)
                         help_add_document(
