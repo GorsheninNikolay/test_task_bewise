@@ -5,10 +5,9 @@ from flask_restx import Resource
 from requests import get
 
 from test_task import api, db
-from .utils.help_add import help_add_document
-
 
 from .models import Document
+from .utils.help_add import help_add_document
 
 
 @api.route('/api/document')
