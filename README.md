@@ -4,6 +4,7 @@
 [![Docker Automated buil](https://img.shields.io/docker/automated/mongkok/coverage.svg)](https://hub.docker.com/r/mongkok/coverage)
 
 - [Как запускать?](#как-запускать)
+- [Примеры запросов](#примеры-запросов)
 
 ## Как запускать?
 
@@ -50,3 +51,8 @@ docker-compose up -d --build
 :exclamation: Документация по адресу http://127.0.0.1:5000/
 
 Если проект требуется остановить, нужно выполнить команду ```docker-compose down```
+
+
+## Примеры запросов
+
+![GET запрос на api/document](https://github.com/GorsheninNikolay/test_task_bewise/tree/main/examples/GET_document.png)
