@@ -2,6 +2,7 @@ import logging
 from typing import Dict, List, Tuple
 
 from flask_restx import Resource
+from flask import request
 from requests import get
 
 from test_task import api, db
@@ -11,9 +12,19 @@ from .utils.help_add import help_add_document
 
 
 @api.route('/api/document')
-class GetFirstDocuments(Resource):
+class RouteDocument(Resource):
     """
-    Получаем первые 100 документов.
+    GET - Получаем первые 100 документов.
+    DELETE - Удаляем все документы
+    POST - Создаем уникальные документы.
+
+    Мой алгоритм основан на множестве и хеше строк, что
+    позволяет быстро находить совпадения и избавляться от них,
+    так как нахождение объекта во множестве выполняется за O(1),
+    а вычисление хеша строки позволяет не сравнивать
+    строки постоянно друг с другом. Если, например, строка была бы
+    огромная, и в это же время таких строк было бы много,
+    то ответа мы бы вряд ли дождались... 🙂
     """
 
     def get(self) -> Dict[str, List[Dict[str, str or int]]]:
@@ -36,64 +47,14 @@ class GetFirstDocuments(Resource):
         except Exception as error:
             logging.error(error)
 
-    def delete(self) -> Tuple[Dict[str, str], int]:
-        try:
-            db.session.query(Document).delete()
-            db.session.commit()
-            return {"result": "Deleted!"}, 204
-        except Exception as error:
-            logging.error(error)
-
-
-@api.route('/api/document/<document_id>')
-class GetQuestions(Resource):
-    """
-    Получаем определенный документ из базы данных.
-    """
-
-    def get(self, document_id: int) -> Dict[str, List[Dict[str, str]]]:
-        try:
-            doc = db.session.query(Document).filter(
-                Document.id == int(document_id)
-            ).one()
-            ans = {'result': []}
-            if doc:
-                ans['result'].append(
-                    {
-                        'id': doc.id,
-                        'text_question': doc.text_question,
-                        'hash_text_question': doc.hash_text_question,
-                        'text_answer': doc.text_answer,
-                        'created_date': doc.created_date.strftime(
-                            '%Y-%m-%d %H:%M'
-                        ),
-                    }
-                )
-            return ans
-        except Exception as error:
-            logging.error(error)
-
-
-@api.route('/api/document/<questions_num>')
-class RandomQuestions(Resource):
-    """
-    Создаем уникальные документы.
-
-    Мой алгоритм основан на множествах и хеше строк, что
-    позволяет быстро находить совпадения и избавляться от них,
-    так как нахождение объекта во множестве выполняется за O(1),
-    а вычисление хеша строки позволяет не сравнивать
-    строки постоянно друг с другом. Если, например, строка была бы
-    огромная, и в это же время таких строк было бы много,
-    то ответа мы бы вряд ли дождались... 🙂
-    """
-
-    def post(self, questions_num: int) -> Tuple[List[Dict[str, str]], int]:
+    def post(self) -> Tuple[List[Dict[str, str]], int]:
         try:
             ans = {'result': []}
+            questions_num = request.json.get('questions_num')
 
-            if int(questions_num) <= 0:
-                return ans
+            if not questions_num or int(questions_num) <= 0:
+                ans['result'] = "Убедитесь, что тело запроса валидно."
+                return ans, 404
 
             url = 'https://jservice.io/api/random'
             resp = get(f'{url}?count={questions_num}').json()
@@ -130,5 +91,42 @@ class RandomQuestions(Resource):
 
             db.session.commit()
             return ans, 201
+        except Exception as error:
+            logging.error(error)
+
+    def delete(self) -> Tuple[Dict[str, str], int]:
+        try:
+            db.session.query(Document).delete()
+            db.session.commit()
+            return {"result": "Deleted!"}, 204
+        except Exception as error:
+            logging.error(error)
+
+
+@api.route('/api/document/<document_id>')
+class GetDocument(Resource):
+    """
+    Получаем определенный документ из базы данных.
+    """
+
+    def get(self, document_id: int) -> Dict[str, List[Dict[str, str]]]:
+        try:
+            doc = db.session.query(Document).filter(
+                Document.id == int(document_id)
+            ).one()
+            ans = {'result': []}
+            if doc:
+                ans['result'].append(
+                    {
+                        'id': doc.id,
+                        'text_question': doc.text_question,
+                        'hash_text_question': doc.hash_text_question,
+                        'text_answer': doc.text_answer,
+                        'created_date': doc.created_date.strftime(
+                            '%Y-%m-%d %H:%M'
+                        ),
+                    }
+                )
+            return ans
         except Exception as error:
             logging.error(error)
