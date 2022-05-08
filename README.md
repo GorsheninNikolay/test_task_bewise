@@ -55,4 +55,14 @@ docker-compose up -d --build
 
 ## Примеры запросов
 
-![GET запрос на api/document](https://github.com/GorsheninNikolay/test_task_bewise/tree/main/examples/GET_document.png)
+GET запрос по адресу http://127.0.0.1:5000/api/document
+![GET запрос на api/document](https://github.com/GorsheninNikolay/test_task_bewise/raw/main/examples/GET_document.png)
+
+GET запрос по адресу http://127.0.0.1:5000/api/document/85427
+![GET запрос на api/document](https://github.com/GorsheninNikolay/test_task_bewise/raw/main/examples/GET_document_85427.png)
+
+POST запрос по адресу http://127.0.0.1:5000/api/document
+![POST запрос на api/document](https://github.com/GorsheninNikolay/test_task_bewise/raw/main/examples/POST_document.png)
+
+DELETE запрос по адресу http://127.0.0.1:5000/api/document
+![DELETE запрос на api/document](https://github.com/GorsheninNikolay/test_task_bewise/raw/main/examples/DELETE_document.png)
